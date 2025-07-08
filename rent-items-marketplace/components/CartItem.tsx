@@ -1,4 +1,4 @@
-import Image from "next/legacy/image"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
 
@@ -14,14 +14,17 @@ interface CartItemProps {
 
 export default function CartItem({ item }: CartItemProps) {
   return (
-    <div className="flex items-center space-x-4 border-b pb-4">
-      <Image 
-        src={item.image || "/placeholder.svg"} 
-        alt={item.name} 
-        width={100} 
-        height={100} 
-        className="rounded-md" 
-      />
+    (<div className="flex items-center space-x-4 border-b pb-4">
+      <Image
+        src={item.image || "/placeholder.svg"}
+        alt={item.name}
+        width={100}
+        height={100}
+        className="rounded-md"
+        style={{
+          maxWidth: "100%",
+          height: "auto"
+        }} />
       <div className="flex-grow">
         <h3 className="font-semibold">{item.name}</h3>
         <p className="text-gray-600">
@@ -32,6 +35,6 @@ export default function CartItem({ item }: CartItemProps) {
       <Button variant="destructive" size="icon">
         <Trash2 className="h-4 w-4" />
       </Button>
-    </div>
-  )
+    </div>)
+  );
 }

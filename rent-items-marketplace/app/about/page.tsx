@@ -1,12 +1,11 @@
-import Image from "next/legacy/image"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function AboutUs() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    (<div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">About RentEase</h1>
-
       <div className="grid md:grid-cols-2 gap-8 items-center mb-12">
         <div>
           <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
@@ -22,10 +21,17 @@ export default function AboutUs() {
           </p>
         </div>
         <div className="relative h-64 md:h-full">
-        <Image src="/mic.jpg" fill style={{ objectFit: "cover" }} alt="Microphone" />
+        <div className="relative w-full h-[300px]">
+  <Image
+    src="/mic.jpg"
+    alt="Mic"
+    fill
+    className="object-cover"
+  />
+</div>
+
         </div>
       </div>
-
       <div className="mb-12">
         <h2 className="text-2xl font-semibold mb-4">Our Story</h2>
         <p className="mb-4">
@@ -39,7 +45,6 @@ export default function AboutUs() {
           future of collaborative consumption.
         </p>
       </div>
-
       <div className="bg-gray-100 p-8 rounded-lg mb-12">
         <h2 className="text-2xl font-semibold mb-4">Our Values</h2>
         <ul className="list-disc list-inside space-y-2">
@@ -50,7 +55,6 @@ export default function AboutUs() {
           <li>Accessibility: We strive to make a wide range of items available to everyone.</li>
         </ul>
       </div>
-
       <div className="text-center">
         <h2 className="text-2xl font-semibold mb-4">Join Our Community</h2>
         <p className="mb-6">
@@ -60,7 +64,7 @@ export default function AboutUs() {
           <Link href="/signup">Sign Up Now</Link>
         </Button>
       </div>
-    </div>
-  )
+    </div>)
+  );
 }
 

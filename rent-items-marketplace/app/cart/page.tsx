@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/legacy/image"
+import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,7 +19,7 @@ export default function Cart() {
   const total = subtotal + tax
 
   return (
-    <div>
+    (<div>
       <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
       {cartItems.length > 0 ? (
         <div className="grid md:grid-cols-3 gap-8">
@@ -30,10 +30,12 @@ export default function Cart() {
                   <Image
                     src={item.image || "/placeholder.svg"}
                     alt={item.name}
-                    layout="fill"
-                    objectFit="cover"
                     className="rounded-md"
-                  />
+                    fill
+                    sizes="100vw"
+                    style={{
+                      objectFit: "cover"
+                    }} />
                 </div>
                 <div className="flex-grow">
                   <h3 className="font-semibold">{item.name}</h3>
@@ -90,7 +92,7 @@ export default function Cart() {
           </Button>
         </div>
       )}
-    </div>
-  )
+    </div>)
+  );
 }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import Image from "next/legacy/image"
+import Image from "next/image"
 import AddToCartForm from "@/components/AddToCartForm"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -288,7 +288,7 @@ export default function ItemDetail() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    (<div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader>
           <CardTitle>{item.name}</CardTitle>
@@ -300,10 +300,12 @@ export default function ItemDetail() {
               <Image
                 src={item.image || "/placeholder.svg"}
                 alt={item.name}
-                layout="fill"
-                objectFit="cover"
                 className="rounded-lg"
-              />
+                fill
+                sizes="100vw"
+                style={{
+                  objectFit: "cover"
+                }} />
             </div>
             <div>
               <p className="text-gray-600 mb-4">{item.description}</p>
@@ -314,7 +316,7 @@ export default function ItemDetail() {
           </div>
         </CardContent>
       </Card>
-    </div>
-  )
+    </div>)
+  );
 }
 

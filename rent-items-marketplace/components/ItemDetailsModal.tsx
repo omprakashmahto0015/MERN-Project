@@ -1,4 +1,4 @@
-import Image from "next/legacy/image"
+import Image from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import AddToCartForm from "@/components/AddToCartForm"
 import ItemChat from "@/components/ItemChat"
@@ -21,7 +21,7 @@ interface ItemDetailsModalProps {
 
 export default function ItemDetailsModal({ item, isOpen, onClose }: ItemDetailsModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    (<Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{item.name}</DialogTitle>
@@ -38,10 +38,12 @@ export default function ItemDetailsModal({ item, isOpen, onClose }: ItemDetailsM
                 <Image
                   src={item.image || "/placeholder.svg"}
                   alt={item.name}
-                  layout="fill"
-                  objectFit="cover"
                   className="rounded-lg"
-                />
+                  fill
+                  sizes="100vw"
+                  style={{
+                    objectFit: "cover"
+                  }} />
               </div>
               <p className="text-sm text-gray-500">{item.description}</p>
               <p className="text-sm text-gray-500">Location: {item.city}</p>
@@ -62,6 +64,6 @@ export default function ItemDetailsModal({ item, isOpen, onClose }: ItemDetailsM
           </TabsContent>
         </Tabs>
       </DialogContent>
-    </Dialog>
-  )
+    </Dialog>)
+  );
 }
