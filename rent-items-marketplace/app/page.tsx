@@ -1,5 +1,5 @@
 import Link from "next/link"
-import Image from "next/image"
+import Image from "next/legacy/image"
 import { Button } from "@/components/ui/button"
 import FeaturedItems from "@/components/FeaturedItems"
 import CategoryList from "@/components/CategoryList"

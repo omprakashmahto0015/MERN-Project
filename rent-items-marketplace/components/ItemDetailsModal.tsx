@@ -1,4 +1,4 @@
-import Image from "next/image"
+import Image from "next/legacy/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import AddToCartForm from "@/components/AddToCartForm"
 import ItemChat from "@/components/ItemChat"

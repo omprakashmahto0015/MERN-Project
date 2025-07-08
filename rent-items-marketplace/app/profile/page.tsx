@@ -81,9 +81,8 @@ export default function Profile() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    (<div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Your Profile</h1>
-
       <div className="grid md:grid-cols-3 gap-8">
         <Card className="md:col-span-2">
           <CardHeader>
@@ -173,7 +172,6 @@ export default function Profile() {
           </CardContent>
         </Card>
       </div>
-
       <div className="mt-12">
         <h2 className="text-2xl font-semibold mb-4">Your Items</h2>
         <Tabs defaultValue="listed">
@@ -184,7 +182,7 @@ export default function Profile() {
           <TabsContent value="listed">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
               {userItems.length > 0 ? (
-                userItems.map((item) => <ItemCard key={item.id} item={item} />) // ✅ Uses correct `id`
+                (userItems.map((item) => <ItemCard key={item.id} item={item} />)) // ✅ Uses correct `id`
               ) : (
                 <p className="text-gray-600">No items listed yet.</p>
               )}
@@ -195,6 +193,6 @@ export default function Profile() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </div>)
   );
 }
