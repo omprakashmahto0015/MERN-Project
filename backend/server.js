@@ -16,8 +16,18 @@ const BASE_URL = process.env.BASE_URL;
 // ================= MIDDLEWARE =================
 app.use(express.json());
 
-// ✅ TEMP SAFE CORS (Vercel + local sab allow)
-app.use(cors());
+// ✅ FINAL SAFE CORS (Vercel + Browser + Preflight FIXED)
+app.use(
+  cors({
+    origin: true, // allow all origins dynamically (Vercel safe)
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+// ✅ Preflight handler (MOST IMPORTANT)
+app.options("*", cors());
 
 // static uploads
 app.use("/uploads", express.static("uploads"));
@@ -34,7 +44,7 @@ app.use("/api/items", items);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/chats", chatRoutes);
 
-// health check
+// ================= HEALTH CHECK =================
 app.get("/", (req, res) => {
   res.json({
     activeStatus: true,
@@ -42,7 +52,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// fetch items with full image URL
+// ================= ITEMS WITH FULL IMAGE URL =================
 app.get("/api/items", async (req, res) => {
   try {
     const items = await Item.find();
