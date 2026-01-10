@@ -16,9 +16,21 @@ const BASE_URL = process.env.BASE_URL;
 // middleware
 app.use(express.json());
 
+const allowedOrigins = [
+  "https://mern-project-lovat-gamma.vercel.app",
+  "https://mern-project-q7f9oulac-opmovies143-gmailcoms-projects.vercel.app",
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
