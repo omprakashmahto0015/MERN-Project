@@ -18,7 +18,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://mern-project-e9fa.onrender.com";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
