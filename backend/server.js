@@ -37,6 +37,13 @@ app.use("/api/items", items);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/chats", chatRoutes);
 
+app.get("/", (req, res) => {
+    res.send({
+        activestatus:true,
+        error:false,
+
+    })
+})
 // fetch items with full image URL
 app.get("/api/items", async (req, res) => {
   try {
