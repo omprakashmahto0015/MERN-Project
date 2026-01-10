@@ -1,6 +1,6 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 const categories = [
   {
@@ -43,11 +43,11 @@ const categories = [
     image: "/categories/clothings.jpg",
     description: "Fashion for all occasions",
   },
-]
+];
 
 export default function Categories() {
   return (
-    (<div>
+    <div>
       <h1 className="text-3xl font-bold mb-6">Categories</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {categories.map((category) => (
@@ -63,20 +63,22 @@ export default function Categories() {
                 fill
                 sizes="100vw"
                 style={{
-                  objectFit: "cover"
-                }} />
+                  objectFit: "cover",
+                }}
+              />
             </div>
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-2">{category.name}</h2>
               <p className="text-gray-600 mb-4">{category.description}</p>
               <Button asChild>
-                <Link href={`/category/${category.name.toLowerCase()}`}>Browse {category.name}</Link>
+                <Link href={`/category/${category.name.toLowerCase()}`}>
+                  Browse {category.name}
+                </Link>
               </Button>
             </div>
           </div>
         ))}
       </div>
-    </div>)
+    </div>
   );
 }
-

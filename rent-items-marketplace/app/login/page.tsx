@@ -6,17 +6,25 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext"; // Ensures user authentication state is managed globally
+import { useAuth } from "@/context/AuthContext"; // Auth context
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); // ✅ Success message
   const [loading, setLoading] = useState(false);
-  const { user, setUser } = useAuth(); // Assuming your context has a setUser function
+  const { user, setUser } = useAuth();
   const router = useRouter();
 
   // Redirect if already logged in
@@ -29,6 +37,7 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
@@ -46,10 +55,14 @@ export default function Login() {
         throw new Error(data.msg || "Login failed");
       }
 
-      console.log("Logged in successfully:", data);
-      localStorage.setItem("token", data.token); // Store token for authentication
-      setUser(data.user); // Update auth state globally
-      router.push("/profile"); // Redirect on successful login
+      localStorage.setItem("token", data.token);
+      setUser(data.user);
+      setSuccess("You have successfully logged in!"); // ✅ Show success
+
+      // Delay redirect to show message
+      setTimeout(() => {
+        router.push("/profile");
+      }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
     } finally {
@@ -62,7 +75,9 @@ export default function Login() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Login</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardDescription>
+            Enter your credentials to access your account
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,15 +106,28 @@ export default function Login() {
               />
             </div>
             <div className="text-right">
-              <Link href="/forgot-password" className="text-blue-600 text-sm hover:underline">
+              <Link
+                href="/forgot-password"
+                className="text-blue-600 text-sm hover:underline"
+              >
                 Forgot Password?
               </Link>
             </div>
+
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
+            {success && (
+              <Alert variant="default">
+                <AlertDescription className="text-green-600">
+                  {success}
+                </AlertDescription>
+              </Alert>
+            )}
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>

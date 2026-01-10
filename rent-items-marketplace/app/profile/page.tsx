@@ -1,15 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ItemCard from "@/components/ItemCard";
+import { useAuth } from "@/context/AuthContext";
 
-// ✅ Corrected Item type based on actual API response
 type Item = {
   id: number;
   name: string;
@@ -22,47 +37,70 @@ type Item = {
 };
 
 export default function Profile() {
-  const [isEditing, setIsEditing] = useState(false);
+  const { user } = useAuth();
+
   const [userData, setUserData] = useState({
-    name: "Sachin Kumar",
-    email: "sachin@gmail.com",
-    phone: "+91 9876543210",
-    address: "Parul University",
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
   });
 
-  const [userItems, setUserItems] = useState<Item[]>([]); // ✅ Corrected type
+  const [userItems, setUserItems] = useState<Item[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // 🆕 State for avatar image
+  const [avatarUrl, setAvatarUrl] = useState("/sachin.png");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // 🆕 Load avatar from localStorage (if any)
+  useEffect(() => {
+    try {
+      const savedAvatar = localStorage.getItem("profileAvatar");
+      if (savedAvatar) {
+        setAvatarUrl(savedAvatar);
+      }
+    } catch (err) {
+      console.error("Error loading saved avatar:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      setUserData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        address: user.address || "",
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetchUserItems = async () => {
       try {
-        const token = localStorage.getItem("token"); // ✅ Get token from localStorage
-
+        const token = localStorage.getItem("token");
         if (!token) {
-          console.error("No token found. User might not be logged in.");
+          console.error("No token found.");
           return;
         }
-
-        console.log("🔹 Token from localStorage:", token);
 
         const res = await fetch("http://localhost:5000/api/items/listed", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` // ✅ Include token in request
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
-        console.log("🔹 Response Status:", res.status); // Debugging
-
         if (!res.ok) {
-          throw new Error(`Failed to fetch listed items: ${res.statusText} (Status: ${res.status})`);
+          throw new Error("Failed to fetch listed items");
         }
 
         const data: Item[] = await res.json();
-        console.log("🔹 Fetched Items:", data); // Debugging
         setUserItems(data);
-      } catch (error) {
-        console.error("Error fetching listed items:", error);
+      } catch (err) {
+        console.error("Error fetching items:", err);
       }
     };
 
@@ -71,23 +109,49 @@ export default function Profile() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUserData((prevData) => ({ ...prevData, [name]: value }));
+    setUserData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsEditing(false);
-    console.log("Updated user data:", userData);
+    console.log("Updated userData", userData);
+  };
+
+  // 🆕 Handle avatar click
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // 🆕 Handle avatar change and save to localStorage
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Image = reader.result as string;
+      setAvatarUrl(base64Image);
+      try {
+        localStorage.setItem("profileAvatar", base64Image);
+      } catch (err) {
+        console.error("Error saving avatar to localStorage:", err);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
-    (<div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Your Profile</h1>
+
       <div className="grid md:grid-cols-3 gap-8">
         <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
-            <CardDescription>Manage your personal details and account settings</CardDescription>
+            <CardDescription>
+              Manage your personal details and account settings
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {isEditing ? (
@@ -95,23 +159,47 @@ export default function Profile() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="name">Name</Label>
-                    <Input id="name" name="name" value={userData.name} onChange={handleInputChange} />
+                    <Input
+                      id="name"
+                      name="name"
+                      value={userData.name}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" value={userData.email} onChange={handleInputChange} />
+                    <Input
+                      id="email"
+                      name="email"
+                      value={userData.email}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" name="phone" value={userData.phone} onChange={handleInputChange} />
+                    <Input
+                      id="phone"
+                      name="phone"
+                      value={userData.phone}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="address">Address</Label>
-                    <Input id="address" name="address" value={userData.address} onChange={handleInputChange} />
+                    <Input
+                      id="address"
+                      name="address"
+                      value={userData.address}
+                      onChange={handleInputChange}
+                    />
                   </div>
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsEditing(false)}
+                  >
                     Cancel
                   </Button>
                   <Button type="submit">Save Changes</Button>
@@ -119,14 +207,29 @@ export default function Profile() {
               </form>
             ) : (
               <div className="space-y-4">
-                <div className="flex items-center space-x-4">
+                <div
+                  className="flex items-center space-x-4 cursor-pointer"
+                  onClick={handleAvatarClick}
+                >
                   <Avatar className="w-20 h-20">
-                    <AvatarImage src="/sachin.png" alt="Profile picture" />
-                    <AvatarFallback>SK</AvatarFallback>
+                    <AvatarImage src={avatarUrl} />
+                    <AvatarFallback>
+                      {userData.name.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleAvatarChange}
+                  />
                   <div>
                     <h2 className="text-2xl font-semibold">{userData.name}</h2>
                     <p className="text-gray-600">Member since January 2025</p>
+                    <p className="text-xs text-blue-600">
+                      Click photo to change
+                    </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -159,7 +262,8 @@ export default function Profile() {
                 <span className="font-semibold">Items Rented:</span> 15
               </p>
               <p>
-                <span className="font-semibold">Items Listed:</span> {userItems.length}
+                <span className="font-semibold">Items Listed:</span>{" "}
+                {userItems.length}
               </p>
               <p>
                 <span className="font-semibold">Total Earnings:</span> ₹50,000
@@ -172,6 +276,7 @@ export default function Profile() {
           </CardContent>
         </Card>
       </div>
+
       <div className="mt-12">
         <h2 className="text-2xl font-semibold mb-4">Your Items</h2>
         <Tabs defaultValue="listed">
@@ -182,17 +287,21 @@ export default function Profile() {
           <TabsContent value="listed">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
               {userItems.length > 0 ? (
-                (userItems.map((item) => <ItemCard key={item.id} item={item} />)) // ✅ Uses correct `id`
+                userItems.map((item) => (
+                  <ItemCard key={item.id} item={item} />
+                ))
               ) : (
                 <p className="text-gray-600">No items listed yet.</p>
               )}
             </div>
           </TabsContent>
           <TabsContent value="rented">
-            <p className="text-gray-600 mt-4">You haven't rented any items yet.</p>
+            <p className="text-gray-600 mt-4">
+              You haven't rented any items yet.
+            </p>
           </TabsContent>
         </Tabs>
       </div>
-    </div>)
+    </div>
   );
 }

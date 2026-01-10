@@ -6,6 +6,7 @@ require("dotenv").config();
 const auth = require("./routes/auth");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const items = require("./routes/items");
+const chatRoutes = require("./routes/chatRoutes");
 const Item = require("./models/Item"); // ✅ Fix: Import the Item model
 
 const app = express();
@@ -24,6 +25,7 @@ mongoose
 app.use("/api/auth", auth); // ✅ Authentication Routes
 app.use("/api/items", items); // ✅ Item Routes
 app.use("/api/dashboard", dashboardRoutes); // ✅ Role-Based Dashboard
+app.use("/api/chats", chatRoutes); // ✅ Chat routes added
 
 // ✅ Fetch all items with full image URL
 app.get("/api/items", async (req, res) => {

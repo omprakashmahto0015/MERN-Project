@@ -30,11 +30,34 @@ const indianCities = [
   "Vadodara",
 ]
 
+// This function simulates a geocoding API call.
+// In a real application, you would use a service like Google Maps Geocoding API,
+// OpenStreetMap's Nominatim, or similar services to convert coordinates to a city name.
+const getCityFromCoordinates = (latitude: number, longitude: number) => {
+  // We'll use a simple, hardcoded check for a specific city for demonstration purposes.
+  // This is a placeholder and should be replaced with real geocoding logic.
+  if (latitude >= 12.9 && latitude <= 13.1 && longitude >= 77.5 && longitude <= 77.7) {
+    return "Bangalore";
+  }
+  if (latitude >= 19.0 && latitude <= 19.2 && longitude >= 72.8 && longitude <= 73.0) {
+    return "Mumbai";
+  }
+  if (latitude >= 28.6 && latitude <= 28.7 && longitude >= 77.1 && longitude <= 77.3) {
+    return "Delhi";
+  }
+  if (latitude >= 17.3 && latitude <= 17.5 && longitude >= 78.4 && longitude <= 78.6) {
+    return "Hyderabad";
+  }
+  // Return a default city if no match is found
+  return "Pune";
+}
+
 export default function NearbyItems() {
   const [userCity, setUserCity] = useState<string | null>(null)
   const [nearbyItems, setNearbyItems] = useState(allItems)
   const [error, setError] = useState<string | null>(null)
   const [usingLiveLocation, setUsingLiveLocation] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleCityChange = (city: string) => {
     setUserCity(city)
@@ -45,21 +68,53 @@ export default function NearbyItems() {
   }
 
   const handleLiveLocation = () => {
+    setIsLoading(true);
+    setUsingLiveLocation(true);
+    setError(null);
+    setUserCity(null);
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUsingLiveLocation(true)
-          setUserCity(null)
-          setError(null)
-          setNearbyItems(allItems) // Show all items across India
+          const { latitude, longitude } = position.coords;
+
+          const cityFromCoords = getCityFromCoordinates(latitude, longitude);
+
+          if (cityFromCoords) {
+            const filteredItems = allItems.filter((item) => item.city === cityFromCoords);
+            setUserCity(cityFromCoords);
+            setNearbyItems(filteredItems);
+          } else {
+            setError("Could not determine your city from your location.");
+            setNearbyItems([]);
+          }
+          setIsLoading(false);
         },
         (error) => {
-          console.error("Error getting location:", error)
-          setError("Unable to retrieve your location. Please try again or select a city manually.")
+          console.error("Error getting location:", error);
+          let errorMessage = "Unable to retrieve your location. Please check your browser permissions and network connection.";
+
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = "Location access was denied. Please allow location permissions in your browser settings to continue.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = "Your location information is currently unavailable. Please check your network and try again.";
+              break;
+            case error.TIMEOUT:
+              errorMessage = "The request to get your location has timed out.";
+              break;
+          }
+
+          setError(errorMessage);
+          setIsLoading(false);
+          setNearbyItems([]);
         },
       )
     } else {
-      setError("Geolocation is not supported by your browser.")
+      setError("Geolocation is not supported by your browser.");
+      setIsLoading(false);
+      setNearbyItems([]);
     }
   }
 
@@ -74,7 +129,7 @@ export default function NearbyItems() {
         </Alert>
       )}
       <div className="mb-4 flex space-x-4">
-        <Select onValueChange={handleCityChange}>
+        <Select onValueChange={handleCityChange} value={userCity || ""} disabled={isLoading}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select your city" />
           </SelectTrigger>
@@ -86,10 +141,12 @@ export default function NearbyItems() {
             ))}
           </SelectContent>
         </Select>
-        <Button onClick={handleLiveLocation}>Use My Location</Button>
+        <Button onClick={handleLiveLocation} disabled={isLoading}>
+          {isLoading ? "Fetching Location..." : "Use My Location"}
+        </Button>
       </div>
-      {usingLiveLocation ? (
-        <p className="mb-4">Showing items across India based on your location</p>
+      {isLoading ? (
+        <p className="mb-4">Fetching your location and nearby items...</p>
       ) : userCity ? (
         <p className="mb-4">Showing items in {userCity}</p>
       ) : (
@@ -100,8 +157,11 @@ export default function NearbyItems() {
           <ItemCard key={item.id} item={item} />
         ))}
       </div>
-      {nearbyItems.length === 0 && <p className="text-center text-gray-600 mt-8">No items found in this location.</p>}
+      {nearbyItems.length === 0 && !isLoading && (
+        <p className="text-center text-gray-600 mt-8">
+          No items found in this location.
+        </p>
+      )}
     </div>
   )
 }
-
