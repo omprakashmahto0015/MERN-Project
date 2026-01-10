@@ -1,3 +1,7 @@
+router.get("/register", (req, res) => {
+  res.json({ ok: true });
+});
+
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
