@@ -16,18 +16,20 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext"; // Auth context
+import { useAuth } from "@/context/AuthContext";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // ✅ Success message
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
   const { user, setUser } = useAuth();
   const router = useRouter();
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user) {
       router.push("/profile");
@@ -41,13 +43,16 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await response.json();
 
@@ -57,14 +62,15 @@ export default function Login() {
 
       localStorage.setItem("token", data.token);
       setUser(data.user);
-      setSuccess("You have successfully logged in!"); // ✅ Show success
+      setSuccess("Login successful 🎉");
 
-      // Delay redirect to show message
       setTimeout(() => {
         router.push("/profile");
-      }, 1500);
+      }, 1200);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred");
+      setError(
+        err instanceof Error ? err.message : "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -79,36 +85,35 @@ export default function Login() {
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            <div>
+              <Label>Email</Label>
               <Input
-                id="email"
                 type="email"
-                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+
+            <div>
+              <Label>Password</Label>
               <Input
-                id="password"
                 type="password"
-                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
               />
             </div>
+
             <div className="text-right">
               <Link
                 href="/forgot-password"
-                className="text-blue-600 text-sm hover:underline"
+                className="text-sm text-blue-600 hover:underline"
               >
                 Forgot Password?
               </Link>
@@ -121,7 +126,7 @@ export default function Login() {
             )}
 
             {success && (
-              <Alert variant="default">
+              <Alert>
                 <AlertDescription className="text-green-600">
                   {success}
                 </AlertDescription>
@@ -140,9 +145,10 @@ export default function Login() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-gray-600">
-            Don&apos;t have an account?{" "}
+
+        <CardFooter className="justify-center">
+          <p className="text-sm">
+            Don’t have an account?{" "}
             <Link href="/signup" className="text-blue-600 hover:underline">
               Sign up
             </Link>

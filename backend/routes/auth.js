@@ -23,21 +23,31 @@ const transporter = nodemailer.createTransport({
 // ✅ Debugging: Check if FRONTEND_URL is defined
 console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
 
-// ✅ REGISTER a new user
-router.post("/register", async (req, res) => {
-    const { name, email, password, role } = req.body;
-    try {
-        let user = await User.findOne({ email });
-        if (user) return res.status(400).json({ msg: "User already exists" });
+// ✅ Sign up a new user
+router.post("/signup", async (req, res) => {
+  const { name, email, password, role } = req.body;
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        user = new User({ name, email, password: hashedPassword, role: role || "user" });
-        await user.save();
-        res.status(201).json({ msg: "User registered successfully" });
-    } catch (err) {
-        res.status(500).json({ msg: "Server error" });
-    }
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser)
+      return res.status(400).json({ msg: "User already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || "user",
+    });
+
+    await user.save();
+    res.status(201).json({ msg: "User registered successfully" });
+  } catch (err) {
+    res.status(500).json({ msg: "Server error" });
+  }
 });
+
 
 // ✅ LOGIN a user
 router.post("/login", async (req, res) => {

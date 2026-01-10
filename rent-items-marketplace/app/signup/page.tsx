@@ -6,9 +6,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react"; // Loading spinner
+import { Loader2 } from "lucide-react";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -18,12 +27,13 @@ export default function Signup() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess(""); // Clear previous messages
+    setSuccess("");
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -32,31 +42,33 @@ export default function Signup() {
 
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, email, password }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.msg || "Signup failed. Please try again.");
+        throw new Error(data.msg || "Signup failed");
       }
 
-      setSuccess("Signup successful! Redirecting...");
+      setSuccess("Signup successful! Redirecting to login...");
 
       setTimeout(() => {
-        router.push("/login"); // Redirect after showing success message
-      }, 2000);
+        router.push("/login");
+      }, 1500);
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred. Please try again.");
-      }
+      setError(
+        err instanceof Error ? err.message : "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -67,52 +79,49 @@ export default function Signup() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
-          <CardDescription>Create your account to start renting items</CardDescription>
+          <CardDescription>
+            Create your account to start renting items
+          </CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+            <div>
+              <Label>Name</Label>
               <Input
-                id="name"
-                type="text"
-                placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 disabled={loading}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+
+            <div>
+              <Label>Email</Label>
               <Input
-                id="email"
                 type="email"
-                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+
+            <div>
+              <Label>Password</Label>
               <Input
-                id="password"
                 type="password"
-                placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+
+            <div>
+              <Label>Confirm Password</Label>
               <Input
-                id="confirmPassword"
                 type="password"
-                placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -127,16 +136,18 @@ export default function Signup() {
             )}
 
             {success && (
-              <div className="bg-green-100 text-green-800 p-3 rounded-md text-center">
-                {success}
-              </div>
+              <Alert>
+                <AlertDescription className="text-green-600">
+                  {success}
+                </AlertDescription>
+              </Alert>
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing Up...
+                  Signing up...
                 </>
               ) : (
                 "Sign Up"
@@ -144,7 +155,8 @@ export default function Signup() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-center">
+
+        <CardFooter className="justify-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
             <Link href="/login" className="text-blue-600 hover:underline">
