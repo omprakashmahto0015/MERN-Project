@@ -1,6 +1,3 @@
-router.get("/register", (req, res) => {
-  res.json({ ok: true });
-});
 
 const express = require("express");
 const bcrypt = require("bcryptjs");
@@ -14,6 +11,10 @@ const { verifyToken } = require("../middleware/authMiddleware");
 dotenv.config(); // ✅ Ensure environment variables are loaded
 
 const router = express.Router();
+
+router.get("/register", (req, res) => {
+  res.json({ ok: true });
+});
 
 // ✅ Email Transporter (Check ENV Variables)
 const transporter = nodemailer.createTransport({
