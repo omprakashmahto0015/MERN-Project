@@ -17,9 +17,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://mern-project-e9fa.onrender.com";
+const API_BASE_URL = "https://mern-project-e9fa.onrender.com";
 
 
 export default function Signup() {
