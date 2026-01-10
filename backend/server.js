@@ -13,49 +13,35 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const BASE_URL = process.env.BASE_URL;
 
-// middleware
+// ================= MIDDLEWARE =================
 app.use(express.json());
 
-const allowedOrigins = [
-  "https://mern-project-lovat-gamma.vercel.app",
-  "https://mern-project-q7f9oulac-opmovies143-gmailcoms-projects.vercel.app",
-];
+// ✅ TEMP SAFE CORS (Vercel + local sab allow)
+app.use(cors());
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-
+// static uploads
 app.use("/uploads", express.static("uploads"));
 
-// MongoDB
+// ================= DATABASE =================
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// routes
+// ================= ROUTES =================
 app.use("/api/auth", auth);
 app.use("/api/items", items);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/chats", chatRoutes);
 
+// health check
 app.get("/", (req, res) => {
-    res.send({
-        activestatus:true,
-        error:false,
+  res.json({
+    activeStatus: true,
+    error: false,
+  });
+});
 
-    })
-})
 // fetch items with full image URL
 app.get("/api/items", async (req, res) => {
   try {
@@ -63,9 +49,10 @@ app.get("/api/items", async (req, res) => {
     res.json(
       items.map((item) => ({
         ...item.toObject(),
-        image: item.image?.startsWith("/uploads")
-          ? `${BASE_URL}${item.image}`
-          : item.image,
+        image:
+          item.image?.startsWith("/uploads")
+            ? `${BASE_URL}${item.image}`
+            : item.image,
       }))
     );
   } catch (error) {
@@ -74,6 +61,7 @@ app.get("/api/items", async (req, res) => {
   }
 });
 
-app.listen(PORT, () =>
-  console.log(`🚀 Server running on port ${PORT}`)
-);
+// ================= SERVER =================
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
