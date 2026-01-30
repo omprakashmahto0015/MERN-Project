@@ -1,4 +1,4 @@
-LIVE PROJECT : https://mern-project-lovat-gamma.vercel.app/
+LIVE PROJECT : https://renteasebyom.vercel.app/
 
 ### RentEase - Rent and Return Marketplace
 ## Overview
